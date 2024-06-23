@@ -89,8 +89,8 @@ export const confirmPayment = async (req, res) => {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
         auth: {
-          user: "a445313aad137b",
-          pass: "c77dfd1224fd30",
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
         },
       });
 
