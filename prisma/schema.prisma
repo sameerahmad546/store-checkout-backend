@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  address   String
+  email     String   @unique
+  orders    Order[]
+}
+
+model Order {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  customerId  String       @db.ObjectId
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  items       OrderItem[]
+  totalAmount Float
+  status      String       @default("pending")
+  payment     Payment?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Item {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float
+  orders      OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String   @db.ObjectId
+  order     Order    @relation(fields: [orderId], references: [id])
+  itemId    String   @db.ObjectId
+  item      Item     @relation(fields: [itemId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+model Payment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String   @unique @db.ObjectId
+  order           Order    @relation(fields: [orderId], references: [id])
+  status          String
+  paymentIntentId String   @unique
+  amount          Float
+  createdAt       DateTime @default(now())
+}
